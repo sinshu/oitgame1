@@ -1,47 +1,65 @@
 ﻿using System;
+using System.Collections.Generic;
 using Yanesdk.Draw;
 using Yanesdk.Ytl;
 using Yanesdk.Input;
 
 namespace OitGame1
 {
-    public class SdlInput : IInput, IDisposable
+    public class SdlInput : IGameInput, IDisposable
     {
-        private bool fullscreen;
-        private int inputDeviceCount;
-        private KeyBoardInput keyBoardInput;
-        private MouseInput mouseInput;
+        private static readonly PlayerKeySetting[] playerKeySettings;
+
+        private readonly bool fullscreen;
+        private readonly int playerCount;
+        private readonly KeyBoardInput keyBoardInput;
+        private readonly MouseInput mouseInput;
 
         private GameCommand[] commands;
 
-        public SdlInput(bool fullscreen, int inputDeviceCount)
+        static SdlInput()
+        {
+            playerKeySettings = new PlayerKeySetting[4];
+            playerKeySettings[0] = new PlayerKeySetting(KeyCode.LEFT, KeyCode.RIGHT, KeyCode.UP, KeyCode.DOWN);
+            playerKeySettings[1] = new PlayerKeySetting(KeyCode.a, KeyCode.d, KeyCode.w, KeyCode.s);
+            playerKeySettings[2] = new PlayerKeySetting(KeyCode.f, KeyCode.h, KeyCode.t, KeyCode.g);
+            playerKeySettings[3] = new PlayerKeySetting(KeyCode.j, KeyCode.l, KeyCode.i, KeyCode.k);
+        }
+
+        public SdlInput(bool fullscreen, int playerCount)
         {
             this.fullscreen = fullscreen;
-            this.inputDeviceCount = inputDeviceCount;
+            this.playerCount = playerCount;
             keyBoardInput = new KeyBoardInput();
             mouseInput = new MouseInput();
             if (fullscreen)
             {
                 mouseInput.Hide();
             }
-            commands = new GameCommand[inputDeviceCount];
+            commands = new GameCommand[playerCount];
         }
 
         public void Update()
         {
             keyBoardInput.Update();
             mouseInput.Update();
-            for (var i = 0; i < inputDeviceCount; i++)
+            for (var i = 0; i < playerCount; i++)
             {
-                var left = keyBoardInput.IsPress(KeyCode.LEFT);
-                var right = keyBoardInput.IsPress(KeyCode.RIGHT);
-                commands[i] = new GameCommand(left, right, false, false);
+                var keySetting = GetKeySetting(i);
+                var left = keyBoardInput.IsPress(keySetting.left);
+                var right = keyBoardInput.IsPress(keySetting.right);
+                var jump = keyBoardInput.IsPress(keySetting.jump);
+                var start = keyBoardInput.IsPress(keySetting.start);
+                commands[i] = new GameCommand(left, right, jump, start);
             }
         }
 
-        public GameCommand[] GetCurrent()
+        public IList<GameCommand> Current
         {
-            return commands;
+            get
+            {
+                return commands;
+            }
         }
 
         public bool Quit()
@@ -52,15 +70,28 @@ namespace OitGame1
         public void Dispose()
         {
             Console.WriteLine("SdlInput.Dispose");
-            if (keyBoardInput != null)
+            keyBoardInput.Dispose();
+            mouseInput.Dispose();
+        }
+
+        private static PlayerKeySetting GetKeySetting(int playerIndex)
+        {
+            return playerKeySettings[playerIndex % playerKeySettings.Length];
+        }
+
+        private class PlayerKeySetting
+        {
+            public readonly KeyCode left;
+            public readonly KeyCode right;
+            public readonly KeyCode jump;
+            public readonly KeyCode start;
+
+            public PlayerKeySetting(KeyCode left, KeyCode right, KeyCode jump, KeyCode start)
             {
-                keyBoardInput.Dispose();
-                keyBoardInput = null;
-            }
-            if (mouseInput != null)
-            {
-                mouseInput.Dispose();
-                mouseInput = null;
+                this.left = left;
+                this.right = right;
+                this.jump = jump;
+                this.start = start;
             }
         }
     }

@@ -8,15 +8,15 @@ namespace OitGame1
 {
     public class OitGame1Application : IDisposable
     {
-        private SDLWindow window;
-        private SdlGraphics graphics;
-        private SdlInput input;
+        private readonly SDLWindow window;
+        private readonly SdlGraphics graphics;
+        private readonly SdlInput input;
 
-        private GameWorld world;
+        private readonly GameWorld world;
 
         private FpsTimer timer;
 
-        public OitGame1Application(bool fullscreen, int inputDeviceCount)
+        public OitGame1Application(bool fullscreen, int playerCount)
         {
             window = new SDLWindow();
             window.SetCaption("OitGame1");
@@ -25,8 +25,8 @@ namespace OitGame1
             window.TestVideoMode(Setting.ScreenWidth, Setting.ScreenHeight, bpp);
             window.EndScreenTest();
             graphics = new SdlGraphics(window);
-            input = new SdlInput(fullscreen, inputDeviceCount);
-            world = new GameWorld(inputDeviceCount);
+            input = new SdlInput(fullscreen, playerCount);
+            world = new GameWorld(playerCount);
         }
 
         public void Run()
@@ -36,8 +36,11 @@ namespace OitGame1
             while (SDLFrame.PollEvent() == YanesdkResult.NoError)
             {
                 input.Update();
-                world.Update(input.GetCurrent());
-                world.Draw(graphics);
+                world.Update(input.Current);
+                if (!timer.ToBeSkip)
+                {
+                    world.Draw(graphics);
+                }
                 if (input.Quit())
                 {
                     return;
@@ -49,21 +52,9 @@ namespace OitGame1
         public void Dispose()
         {
             Console.WriteLine("OitGame1Application.Dispose");
-            if (input != null)
-            {
-                input.Dispose();
-                input = null;
-            }
-            if (graphics != null)
-            {
-                graphics.Dispose();
-                graphics = null;
-            }
-            if (window != null)
-            {
-                window.Dispose();
-                window = null;
-            }
+            input.Dispose();
+            graphics.Dispose();
+            window.Dispose();
         }
     }
 }

@@ -6,11 +6,12 @@ using Yanesdk.System;
 
 namespace OitGame1
 {
-    public class SdlGraphics : IGraphics, IDisposable
+    public class SdlGraphics : IGameGraphics, IDisposable
     {
-        private SDLWindow window;
-        private IScreen screen;
-        private GlTexture test;
+        private readonly SDLWindow window;
+        private readonly IScreen screen;
+
+        private ITexture[] textures;
 
         public SdlGraphics(SDLWindow window)
         {
@@ -20,9 +21,19 @@ namespace OitGame1
             screen.SetClearColor(128, 128, 128);
             screen.Clear();
             End();
-            test = new GlTexture();
-            var result = test.Load("images/test.png");
-            Console.WriteLine(result);
+            LoadTextures();
+        }
+
+        private void LoadTextures()
+        {
+            var textureCount = Enum.GetValues(typeof(GameImage)).Length;
+            textures = new ITexture[textureCount];
+            for (var i = 0; i < textureCount; i++)
+            {
+                var path = "images/" + Enum.GetName(typeof(GameImage), i) + ".png";
+                Console.WriteLine(path);
+                textures[i] = GetTexture(path);
+            }
         }
 
         public void Begin()
@@ -55,18 +66,38 @@ namespace OitGame1
             screen.DrawPolygon(x1, y1, x2, y2, x3, y3, x4, y4);
         }
 
+        public void DrawImage(GameImage image, int x, int y)
+        {
+            var texture = textures[(int)image];
+            screen.Blt(texture, x, y);
+        }
+
         public void Test(int x, int y)
         {
-            screen.Blt(test, x, y);
+            screen.Blt(textures[0], x, y);
+        }
+
+        private static ITexture GetTexture(string path)
+        {
+            var texture = new GlTexture();
+            texture.LocalOption.Smooth = false;
+            var result = texture.Load(path);
+            if (result == YanesdkResult.NoError)
+            {
+                return texture;
+            }
+            else
+            {
+                throw new Exception("画像 '" + path + "' の読み込みに失敗しました。");
+            }
         }
 
         public void Dispose()
         {
             Console.WriteLine("SdlGraphics.Dispose");
-            if (test != null)
+            foreach (var texture in textures)
             {
-                test.Dispose();
-                test = null;
+                texture.Dispose();
             }
         }
     }

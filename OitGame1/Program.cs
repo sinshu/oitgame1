@@ -10,7 +10,7 @@ namespace OitGame1
     {
         static void Main(string[] args)
         {
-            using (var app = new OitGame1Application(false, 3))
+            using (var app = new OitGame1Application(false, 4))
             {
                 app.Run();
             }
