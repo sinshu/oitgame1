@@ -21,6 +21,9 @@ namespace OitGame1
         private static readonly double maxPenalty = 4.0;
         private static readonly double maxSpeed = 12.0;
 
+        private static readonly int animationCount = 4;
+        private static readonly double distancePerAnimation = 24.0;
+
         private readonly GameWorld world;
         private readonly int playerIndex;
 
@@ -36,6 +39,8 @@ namespace OitGame1
         private int damageDuration;
         private bool canMove;
 
+        private double walkingDistance;
+
         public GamePlayer(GameWorld world, int playerIndex, double x)
         {
             CenterX = x;
@@ -50,6 +55,7 @@ namespace OitGame1
             canJump = true;
             damageDuration = 0;
             canMove = true;
+            walkingDistance = 0;
         }
 
         public void Update1(GameCommand command)
@@ -69,6 +75,7 @@ namespace OitGame1
             if (command.Left == command.Right || !canMove)
             {
                 vx = Utility.DecreaseAbs(vx, acceleration / 2);
+                if (vx == 0) walkingDistance = 0;
             }
             else
             {
@@ -76,11 +83,27 @@ namespace OitGame1
                 {
                     vx = Utility.AddClampMin(vx, -acceleration, -maxMovingSpeed);
                     direction = Direction.Left;
+                    if (vx < 0)
+                    {
+                        walkingDistance += Math.Abs(vx);
+                    }
+                    else
+                    {
+                        walkingDistance = 0;
+                    }
                 }
                 else if (command.Right)
                 {
                     vx = Utility.AddClampMax(vx, acceleration, maxMovingSpeed);
                     direction = Direction.Right;
+                    if (vx > 0)
+                    {
+                        walkingDistance += Math.Abs(vx);
+                    }
+                    else
+                    {
+                        walkingDistance = 0;
+                    }
                 }
                 else
                 {
@@ -98,6 +121,10 @@ namespace OitGame1
             {
                 Right = world.CameraRight;
                 vx = 0;
+            }
+            if (walkingDistance > animationCount * distancePerAnimation)
+            {
+                walkingDistance -= animationCount * distancePerAnimation;
             }
         }
 
@@ -188,16 +215,50 @@ namespace OitGame1
 
         public void Draw(IGameGraphics graphics)
         {
-            var drawX = (int)Math.Round(X - world.CameraLeft);
+            var drawOffset = (32 - Width) / 2;
+            var drawX = (int)Math.Round(X - world.CameraLeft - drawOffset);
             var drawY = (int)Math.Round(Y);
-            graphics.Test(drawX, drawY);
+            var rowOffset = 2 * (playerIndex % 4);
+            if (state == State.OnGround)
+            {
+                var anim = (int)(walkingDistance / distancePerAnimation);
+                if (direction == Direction.Right)
+                {
+                    anim += 4;
+                }
+                graphics.DrawImage(GameImage.Player, 32, 32, rowOffset, anim, drawX, drawY);
+            }
+            else if (state == State.InAir)
+            {
+                var anim = 0;
+                if (vy > 0)
+                {
+                    if (vy < maxFallingSpeed)
+                    {
+                        anim = 1;
+                    }
+                    else
+                    {
+                        anim = 2;
+                    }
+                }
+                if (direction == Direction.Right)
+                {
+                    anim += 4;
+                }
+                graphics.DrawImage(GameImage.Player, 32, 32, rowOffset + 1, anim, drawX, drawY);
+            }
+            else
+            {
+                Debug.Assert(false);
+            }
         }
 
         public override double Width
         {
             get
             {
-                return 32;
+                return 24;
             }
         }
 
