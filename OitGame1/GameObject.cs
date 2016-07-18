@@ -9,6 +9,18 @@ public abstract class GameObject
     public abstract double Width { get; }
     public abstract double Height { get; }
 
+    public bool IsOverlappedWith(GameObject other)
+    {
+        if (other.Right > Left && other.Left < Right && other.Bottom > Top && other.Top < Bottom)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public double X
     {
         get

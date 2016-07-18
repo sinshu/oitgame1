@@ -4,6 +4,20 @@ namespace OitGame1
 {
     public static class Utility
     {
+        public static double ClampAbs(double value, double maxValue)
+        {
+            var sign = Math.Sign(value);
+            var abs = Math.Abs(value);
+            if (abs > maxValue)
+            {
+                return sign * maxValue;
+            }
+            else
+            {
+                return sign * abs;
+            }
+        }
+
         public static double AddClampMin(double value, double delta, double minValue)
         {
             var result = value + delta;

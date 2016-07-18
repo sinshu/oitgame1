@@ -27,7 +27,11 @@ namespace OitGame1
         {
             for (var i = 0; i < playerCount; i++)
             {
-                players[i].Update(command[i]);
+                players[i].Update1(command[i]);
+            }
+            for (var i = 0; i < playerCount; i++)
+            {
+                players[i].Update2();
             }
             SetCameraCenterX(GetAveragePlayerX());
         }
@@ -92,6 +96,14 @@ namespace OitGame1
             get
             {
                 return cameraIntX + Setting.ScreenWidth;
+            }
+        }
+
+        public IList<GamePlayer> Players
+        {
+            get
+            {
+                return players;
             }
         }
     }
