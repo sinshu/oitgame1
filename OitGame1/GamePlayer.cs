@@ -81,6 +81,10 @@ namespace OitGame1
             {
                 if (command.Left)
                 {
+                    if (vx == 0)
+                    {
+                        walkingDistance = distancePerAnimation;
+                    }
                     vx = Utility.AddClampMin(vx, -acceleration, -maxMovingSpeed);
                     direction = Direction.Left;
                     if (vx < 0)
@@ -94,6 +98,10 @@ namespace OitGame1
                 }
                 else if (command.Right)
                 {
+                    if (vx == 0)
+                    {
+                        walkingDistance = distancePerAnimation;
+                    }
                     vx = Utility.AddClampMax(vx, acceleration, maxMovingSpeed);
                     direction = Direction.Right;
                     if (vx > 0)
