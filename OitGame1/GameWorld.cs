@@ -13,6 +13,8 @@ namespace OitGame1
         private double cameraRealX;
         private int cameraIntX;
 
+        private List<GameCoin> coins;
+
         public GameWorld(int playerCount)
         {
             this.playerCount = playerCount;
@@ -20,6 +22,12 @@ namespace OitGame1
             for (var i = 0; i < playerCount; i++)
             {
                 players[i] = new GamePlayer(this, i, 100 * i);
+            }
+            coins = new List<GameCoin>();
+            var rand = new Random();
+            for (var i = 0; i < 10; i++)
+            {
+                coins.Add(new GameCoin(rand.Next(0, 640), rand.Next(0, 480), rand.Next(0, 60)));
             }
         }
 
@@ -34,6 +42,10 @@ namespace OitGame1
                 players[i].Update2();
             }
             SetCameraCenterX(GetAveragePlayerX());
+            foreach (var coin in coins)
+            {
+                coin.Update();
+            }
         }
 
         public void Draw(IGameGraphics graphics)
@@ -47,6 +59,10 @@ namespace OitGame1
             foreach (var player in players)
             {
                 player.Draw(graphics);
+            }
+            foreach (var coin in coins)
+            {
+                coin.Draw(graphics);
             }
             graphics.End();
         }

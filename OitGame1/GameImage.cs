@@ -6,6 +6,7 @@ namespace OitGame1
     {
         Test,
         Player,
+        Coin,
         Field
     }
 }

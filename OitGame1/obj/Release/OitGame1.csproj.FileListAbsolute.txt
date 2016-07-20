@@ -31,3 +31,4 @@ C:\Users\Sinshu\Desktop\OitGame1\OitGame1\bin\Release\Yanesdk.pdb
 C:\Users\Sinshu\Desktop\OitGame1\OitGame1\obj\Release\OitGame1.csprojResolveAssemblyReference.cache
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\field.png
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Player.png
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Coin.png
