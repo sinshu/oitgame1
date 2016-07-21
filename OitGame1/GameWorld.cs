@@ -27,7 +27,7 @@ namespace OitGame1
             var rand = new Random();
             for (var i = 0; i < 10; i++)
             {
-                coins.Add(new GameCoin(rand.Next(0, 640), rand.Next(0, 480), rand.Next(0, 60)));
+                coins.Add(new GameCoin(this, rand.Next(0, 640), rand.Next(0, 480), rand.Next(0, 60)));
             }
         }
 

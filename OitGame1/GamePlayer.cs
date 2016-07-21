@@ -42,6 +42,7 @@ namespace OitGame1
         private double walkingDistance;
 
         public GamePlayer(GameWorld world, int playerIndex, double x)
+            : base(world)
         {
             CenterX = x;
             Bottom = floorY;

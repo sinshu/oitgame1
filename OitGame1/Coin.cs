@@ -6,12 +6,15 @@ namespace OitGame1
 {
     public class GameCoin : GameObject
     {
+        private GameWorld world;
         private int animation;
 
-        public GameCoin(double x, double y, int animation)
+        public GameCoin(GameWorld world, double x, double y, int animation)
+            : base(world)
         {
             CenterX = x;
             CenterY = y;
+            this.world = world;
             this.animation = animation;
         }
 
@@ -27,7 +30,8 @@ namespace OitGame1
 
         public void Draw(IGameGraphics graphics)
         {
-            var drawX = (int)Math.Round(X);
+            if (Right <= World.CameraLeft || Left >= World.CameraRight) return;
+            var drawX = (int)Math.Round(X - world.CameraLeft);
             var drawY = (int)Math.Round(Y);
             var row = animation / 2 / 8;
             var col = animation / 2 % 8;

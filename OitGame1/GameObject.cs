@@ -1,127 +1,144 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public abstract class GameObject
+namespace OitGame1
 {
-    private double x;
-    private double y;
-
-    public abstract double Width { get; }
-    public abstract double Height { get; }
-
-    public bool IsOverlappedWith(GameObject other)
+    public abstract class GameObject
     {
-        if (other.Right > Left && other.Left < Right && other.Bottom > Top && other.Top < Bottom)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+        private GameWorld world;
+        private double x;
+        private double y;
 
-    public double X
-    {
-        get
+        public abstract double Width { get; }
+        public abstract double Height { get; }
+
+        public GameObject(GameWorld world)
         {
-            return x;
+            this.world = world;
         }
 
-        set
+        public bool IsOverlappedWith(GameObject other)
         {
-            x = value;
-        }
-    }
-
-    public double Y
-    {
-        get
-        {
-            return y;
-        }
-
-        set
-        {
-            y = value;
-        }
-    }
-
-    public double Left
-    {
-        get
-        {
-            return x;
+            if (other.Right > Left && other.Left < Right && other.Bottom > Top && other.Top < Bottom)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        set
+        public double X
         {
-            x = value;
-        }
-    }
+            get
+            {
+                return x;
+            }
 
-    public double Right
-    {
-        get
-        {
-            return x + Width;
-        }
-
-        set
-        {
-            x = value - Width;
-        }
-    }
-
-    public double Top
-    {
-        get
-        {
-            return y;
+            set
+            {
+                x = value;
+            }
         }
 
-        set
+        public double Y
         {
-            y = value;
-        }
-    }
+            get
+            {
+                return y;
+            }
 
-    public double Bottom
-    {
-        get
-        {
-            return y + Height;
-        }
-
-        set
-        {
-            y = value - Height;
-        }
-    }
-
-    public double CenterX
-    {
-        get
-        {
-            return x + Width / 2;
+            set
+            {
+                y = value;
+            }
         }
 
-        set
+        public double Left
         {
-            x = value - Width / 2;
-        }
-    }
+            get
+            {
+                return x;
+            }
 
-    public double CenterY
-    {
-        get
-        {
-            return y + Height / 2;
+            set
+            {
+                x = value;
+            }
         }
 
-        set
+        public double Right
         {
-            y = value - Height / 2;
+            get
+            {
+                return x + Width;
+            }
+
+            set
+            {
+                x = value - Width;
+            }
+        }
+
+        public double Top
+        {
+            get
+            {
+                return y;
+            }
+
+            set
+            {
+                y = value;
+            }
+        }
+
+        public double Bottom
+        {
+            get
+            {
+                return y + Height;
+            }
+
+            set
+            {
+                y = value - Height;
+            }
+        }
+
+        public double CenterX
+        {
+            get
+            {
+                return x + Width / 2;
+            }
+
+            set
+            {
+                x = value - Width / 2;
+            }
+        }
+
+        public double CenterY
+        {
+            get
+            {
+                return y + Height / 2;
+            }
+
+            set
+            {
+                y = value - Height / 2;
+            }
+        }
+
+        public GameWorld World
+        {
+            get
+            {
+                return world;
+            }
         }
     }
 }
