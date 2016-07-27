@@ -6,7 +6,6 @@ namespace OitGame1
 {
     public class GamePlayer : GameObject
     {
-        private static readonly double floorY = Setting.ScreenHeight - 64;
         private static readonly double gravityAcceleration = 0.5;
         private static readonly double maxFallingSpeed = 8.0;
 
@@ -24,7 +23,6 @@ namespace OitGame1
         private static readonly int animationCount = 4;
         private static readonly double distancePerAnimation = 24.0;
 
-        private readonly GameWorld world;
         private readonly int playerIndex;
 
         private double vx;
@@ -41,12 +39,13 @@ namespace OitGame1
 
         private double walkingDistance;
 
+        private bool ready;
+
         public GamePlayer(GameWorld world, int playerIndex, double x)
             : base(world)
         {
             CenterX = x;
-            Bottom = floorY;
-            this.world = world;
+            Bottom = world.FloorY;
             this.playerIndex = playerIndex;
             vx = 0;
             vy = 0;
@@ -57,12 +56,17 @@ namespace OitGame1
             damageDuration = 0;
             canMove = true;
             walkingDistance = 0;
+            ready = false;
         }
 
         public void Update1(GameCommand command)
         {
             UpdateX(command);
             UpdateY(command);
+            if (command.Start)
+            {
+                ready = true;
+            }
         }
 
         public void Update2()
@@ -121,14 +125,14 @@ namespace OitGame1
             }
             vx = Utility.ClampAbs(vx, maxSpeed);
             X += vx;
-            if (Left < world.CameraLeft)
+            if (Left < World.CameraLeft)
             {
-                Left = world.CameraLeft;
+                Left = World.CameraLeft;
                 vx = 0;
             }
-            if (Right > world.CameraRight)
+            if (Right > World.CameraRight)
             {
-                Right = world.CameraRight;
+                Right = World.CameraRight;
                 vx = 0;
             }
             if (walkingDistance > animationCount * distancePerAnimation)
@@ -172,9 +176,9 @@ namespace OitGame1
             vy = Utility.ClampAbs(vy, maxSpeed);
             Y += vy;
             state = State.InAir;
-            if (Bottom >= floorY)
+            if (Bottom >= World.FloorY)
             {
-                Bottom = floorY;
+                Bottom = World.FloorY;
                 vy = 0;
                 state = State.OnGround;
             }
@@ -186,7 +190,7 @@ namespace OitGame1
 
         private void ProcessCollision()
         {
-            foreach (var other in world.Players)
+            foreach (var other in World.Players)
             {
                 if (other == this) continue;
                 if (IsOverlappedWith(other))
@@ -222,10 +226,15 @@ namespace OitGame1
             }
         }
 
+        public void GetCoin(GameCoin coin)
+        {
+
+        }
+
         public void Draw(IGameGraphics graphics)
         {
             var drawOffset = (32 - Width) / 2;
-            var drawX = (int)Math.Round(X - world.CameraLeft - drawOffset);
+            var drawX = (int)Math.Round(X - World.CameraLeft - drawOffset);
             var drawY = (int)Math.Round(Y);
             var rowOffset = 2 * (playerIndex % 4);
             if (state == State.OnGround)
@@ -263,6 +272,14 @@ namespace OitGame1
             }
         }
 
+        public void DrawReady(IGameGraphics graphics)
+        {
+            if (!ready) return;
+            var drawX = (int)Math.Round(CenterX - World.CameraLeft - 32);
+            var drawY = (int)Math.Round(Top - 32);
+            graphics.DrawImage(GameImage.Ready, drawX, drawY);
+        }
+
         public override double Width
         {
             get
@@ -276,6 +293,14 @@ namespace OitGame1
             get
             {
                 return 32;
+            }
+        }
+
+        public bool Ready
+        {
+            get
+            {
+                return ready;
             }
         }
 

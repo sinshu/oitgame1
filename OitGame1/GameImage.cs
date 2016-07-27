@@ -4,9 +4,10 @@ namespace OitGame1
 {
     public enum GameImage
     {
-        Test,
         Player,
+        Ready,
         Coin,
-        Field
+        Field,
+        Message
     }
 }

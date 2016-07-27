@@ -36,7 +36,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Coin.cs" />
+    <Compile Include="GameCoin.cs" />
     <Compile Include="GameCommand.cs" />
     <Compile Include="GameImage.cs" />
     <Compile Include="GameObject.cs" />
@@ -67,10 +67,13 @@
     <Content Include="images\Field.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="images\Message.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="images\Player.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="images\Test.png">
+    <Content Include="images\Ready.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

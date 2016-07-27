@@ -6,6 +6,7 @@ namespace OitGame1
     public class GameWorld
     {
         private static readonly int fieldWidth = 1024;
+        private static readonly int floorY = Setting.ScreenHeight - 64;
 
         private readonly int playerCount;
         private readonly GamePlayer[] players;
@@ -13,7 +14,17 @@ namespace OitGame1
         private double cameraRealX;
         private int cameraIntX;
 
+        private State state;
+        private IEnumerator<int> stateCoroutine;
+        private int sleepCount;
+        private int countDown;
+
+        private Random random;
         private List<GameCoin> coins;
+        private int coinGenDuration;
+
+        private int elapsedTime;
+        private int remainingTime;
 
         public GameWorld(int playerCount)
         {
@@ -23,12 +34,19 @@ namespace OitGame1
             {
                 players[i] = new GamePlayer(this, i, 100 * i);
             }
+            SetCameraCenterX(GetAveragePlayerX());
+
+            state = State.Waiting;
+            stateCoroutine = StateCoroutine().GetEnumerator();
+            sleepCount = 0;
+            countDown = 0;
+
+            random = new Random();
             coins = new List<GameCoin>();
-            var rand = new Random();
-            for (var i = 0; i < 10; i++)
-            {
-                coins.Add(new GameCoin(this, rand.Next(0, 640), rand.Next(0, 480), rand.Next(0, 60)));
-            }
+            coinGenDuration = 0;
+
+            elapsedTime = 0;
+            remainingTime = 60 * 60;
         }
 
         public void Update(IList<GameCommand> command)
@@ -42,9 +60,109 @@ namespace OitGame1
                 players[i].Update2();
             }
             SetCameraCenterX(GetAveragePlayerX());
+
+            if (state == State.Playing)
+            {
+                if (coinGenDuration == 0)
+                {
+                    var x = fieldWidth * random.NextDouble();
+                    coins.Add(new GameCoin(this, x));
+                    coinGenDuration = 15 + random.Next(15);
+                }
+                else
+                {
+                    coinGenDuration--;
+                }
+            }
             foreach (var coin in coins)
             {
                 coin.Update();
+            }
+
+            CheckCoinCollision();
+
+            UpdateCoroutine();
+
+            if (state == State.Playing)
+            {
+                elapsedTime++;
+                if (remainingTime > 0)
+                {
+                    remainingTime--;
+                }
+            }
+        }
+
+        public void CheckCoinCollision()
+        {
+            foreach (var player in players)
+            {
+                foreach (var coin in coins)
+                {
+                    if (player.IsOverlappedWith(coin))
+                    {
+                        player.GetCoin(coin);
+                        coin.Delete();
+                    }
+                }
+            }
+            coins.RemoveAll(coin => coin.Deleted);
+        }
+
+        public void UpdateCoroutine()
+        {
+            sleepCount--;
+            if (sleepCount <= 0)
+            {
+                stateCoroutine.MoveNext();
+                sleepCount = stateCoroutine.Current;
+            }
+        }
+
+        private bool AllPlayersAreReady()
+        {
+            foreach (var player in players)
+            {
+                if (!player.Ready)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private IEnumerable<int> StateCoroutine()
+        {
+            while (true)
+            {
+                switch (state)
+                {
+                    case State.Waiting:
+                        if (AllPlayersAreReady())
+                        {
+                            yield return 60;
+                            state = State.Ready;
+                        }
+                        else
+                        {
+                            yield return 1;
+                        }
+                        break;
+                    case State.Ready:
+                        for (var i = 0; i < 3; i++)
+                        {
+                            yield return 60;
+                            countDown++;
+                        }
+                        state = State.Playing;
+                        yield return 1;
+                        break;
+                    case State.Playing:
+                        yield return 1;
+                        break;
+                    default:
+                        throw new Exception("＼(^o^)／");
+                }
             }
         }
 
@@ -56,13 +174,36 @@ namespace OitGame1
             graphics.SetColor(255, 255, 255, 255);
             graphics.DrawImage(GameImage.Field, -cameraIntX, Setting.ScreenHeight - 128);
             graphics.SetColor(255, 255, 255, 255);
+            foreach (var coin in coins)
+            {
+                coin.Draw(graphics);
+            }
             foreach (var player in players)
             {
                 player.Draw(graphics);
             }
-            foreach (var coin in coins)
+            if (state == State.Waiting)
             {
-                coin.Draw(graphics);
+                foreach (var player in players)
+                {
+                    player.DrawReady(graphics);
+                }
+            }
+            else if (state == State.Ready)
+            {
+                if (countDown < 3)
+                {
+                    var drawX = (Setting.ScreenWidth - 128) / 2;
+                    graphics.DrawImage(GameImage.Message, 128, 128, 0, countDown, drawX, 64);
+                }
+            }
+            else if (state == State.Playing)
+            {
+                if (elapsedTime < 60)
+                {
+                    var drawX = (Setting.ScreenWidth - 256) / 2;
+                    graphics.DrawImage(GameImage.Message, 256, 128, 1, 0, drawX, 64);
+                }
             }
             graphics.End();
         }
@@ -121,6 +262,37 @@ namespace OitGame1
             {
                 return players;
             }
+        }
+
+        public Random Random
+        {
+            get
+            {
+                return random;
+            }
+        }
+
+        public int FieldWidth
+        {
+            get
+            {
+                return fieldWidth;
+            }
+        }
+
+        public int FloorY
+        {
+            get
+            {
+                return floorY;
+            }
+        }
+
+        private enum State
+        {
+            Waiting,
+            Ready,
+            Playing
         }
     }
 }
