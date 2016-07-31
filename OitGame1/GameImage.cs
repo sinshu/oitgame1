@@ -7,7 +7,12 @@ namespace OitGame1
         Player,
         Ready,
         Coin,
+        Bomb,
         Field,
-        Message
+        Message,
+        Hud,
+        Time,
+        Rank,
+        Title
     }
 }

@@ -41,6 +41,8 @@ namespace OitGame1
 
         private bool ready;
 
+        private int coinCount;
+
         public GamePlayer(GameWorld world, int playerIndex, double x)
             : base(world)
         {
@@ -49,14 +51,25 @@ namespace OitGame1
             this.playerIndex = playerIndex;
             vx = 0;
             vy = 0;
-            direction = Direction.Left;
+            direction = Direction.Right;
             state = State.OnGround;
             jumpUpDuration = 0;
             canJump = true;
+            Reset();
+            ResetCoinCount();
+        }
+
+        public void Reset()
+        {
             damageDuration = 0;
             canMove = true;
             walkingDistance = 0;
             ready = false;
+        }
+
+        public void ResetCoinCount()
+        {
+            coinCount = 0;
         }
 
         public void Update1(GameCommand command)
@@ -66,6 +79,17 @@ namespace OitGame1
             if (command.Start)
             {
                 ready = true;
+            }
+            if (!canMove)
+            {
+                if (damageDuration > 0)
+                {
+                    damageDuration--;
+                }
+                else
+                {
+                    canMove = true;
+                }
             }
         }
 
@@ -228,7 +252,38 @@ namespace OitGame1
 
         public void GetCoin(GameCoin coin)
         {
+            coinCount++;
+        }
 
+        public void GetBomb(GameBomb bomb)
+        {
+            var dx = CenterX - bomb.CenterX;
+            var dy = CenterY - bomb.CenterY;
+            var bunbo = Math.Abs(dx) + Math.Abs(dy);
+            if (bunbo >= 0.000000001)
+            {
+                vx += maxSpeed * dx;
+                vy += maxSpeed * dy;
+            }
+            canMove = false;
+            damageDuration = 180;
+            var coinPenalty = 10;
+            if (coinCount < coinPenalty)
+            {
+                coinPenalty = coinCount;
+            }
+            coinCount -= coinPenalty;
+            if (coinPenalty > 0)
+            {
+                var phase = 2 * Math.PI * World.Random.NextDouble();
+                for (var i = 0; i < coinPenalty; i++)
+                {
+                    var theta = 2 * Math.PI * i / coinPenalty;
+                    var cvx = 8 * Math.Cos(theta + phase) + World.Random.NextDouble() - 0.5;
+                    var cvy = 8 * -Math.Sin(theta + phase) + World.Random.NextDouble() - 0.5;
+                    World.AddCoin(new GameCoin(World, CenterX, CenterY, cvx, cvy));
+                }
+            }
         }
 
         public void Draw(IGameGraphics graphics)
@@ -237,47 +292,72 @@ namespace OitGame1
             var drawX = (int)Math.Round(X - World.CameraLeft - drawOffset);
             var drawY = (int)Math.Round(Y);
             var rowOffset = 2 * (playerIndex % 4);
-            if (state == State.OnGround)
+            if (canMove)
             {
-                var anim = (int)(walkingDistance / distancePerAnimation);
-                if (direction == Direction.Right)
+                if (state == State.OnGround)
                 {
-                    anim += 4;
+                    var anim = (int)(walkingDistance / distancePerAnimation);
+                    if (direction == Direction.Right)
+                    {
+                        anim += 4;
+                    }
+                    graphics.DrawImage(GameImage.Player, 32, 32, rowOffset, anim, drawX, drawY);
                 }
-                graphics.DrawImage(GameImage.Player, 32, 32, rowOffset, anim, drawX, drawY);
+                else if (state == State.InAir)
+                {
+                    var anim = 0;
+                    if (vy > 0)
+                    {
+                        if (vy < maxFallingSpeed)
+                        {
+                            anim = 1;
+                        }
+                        else
+                        {
+                            anim = 2;
+                        }
+                    }
+                    if (direction == Direction.Right)
+                    {
+                        anim += 4;
+                    }
+                    graphics.DrawImage(GameImage.Player, 32, 32, rowOffset + 1, anim, drawX, drawY);
+                }
+                else
+                {
+                    Debug.Assert(false);
+                }
             }
-            else if (state == State.InAir)
+            else
             {
-                var anim = 0;
-                if (vy > 0)
-                {
-                    if (vy < maxFallingSpeed)
-                    {
-                        anim = 1;
-                    }
-                    else
-                    {
-                        anim = 2;
-                    }
-                }
+                var anim = 3;
                 if (direction == Direction.Right)
                 {
                     anim += 4;
                 }
                 graphics.DrawImage(GameImage.Player, 32, 32, rowOffset + 1, anim, drawX, drawY);
             }
-            else
-            {
-                Debug.Assert(false);
-            }
         }
 
-        public void DrawReady(IGameGraphics graphics)
+        public void DrawState(IGameGraphics graphics, int rank)
         {
-            if (!ready) return;
-            var drawX = (int)Math.Round(CenterX - World.CameraLeft - 32);
-            var drawY = (int)Math.Round(Top - 32);
-            graphics.DrawImage(GameImage.Ready, drawX, drawY);
+            if (!ready)
+            {
+                if (rank >= 0)
+                {
+                    var r = rank;
+                    if (r > 3) r = 3;
+                    var drawX = (int)Math.Round(CenterX - World.CameraLeft - 32);
+                    var drawY = (int)Math.Round(Top - 64);
+                    graphics.DrawImage(GameImage.Rank, 64, 64, 0, r, drawX, drawY);
+                }
+            }
+            else
+            {
+                var drawX = (int)Math.Round(CenterX - World.CameraLeft - 32);
+                var drawY = (int)Math.Round(Top - 32);
+                graphics.DrawImage(GameImage.Ready, drawX, drawY);
+            }
         }
 
         public override double Width
@@ -301,6 +381,30 @@ namespace OitGame1
             get
             {
                 return ready;
+            }
+        }
+
+        public bool CanMove
+        {
+            get
+            {
+                return canMove;
+            }
+        }
+
+        public int PlayerIndex
+        {
+            get
+            {
+                return playerIndex;
+            }
+        }
+
+        public int CoinCount
+        {
+            get
+            {
+                return coinCount;
             }
         }
 

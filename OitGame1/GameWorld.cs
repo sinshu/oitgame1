@@ -8,45 +8,78 @@ namespace OitGame1
         private static readonly int fieldWidth = 1024;
         private static readonly int floorY = Setting.ScreenHeight - 64;
 
+        private static readonly int initCoinGenPeriod = 20;
+        private static readonly int minCoinGenPeriod = 5;
+        private static readonly int initBombGenPeriod = 120;
+        private static readonly int minBombGenPeriod = 20;
+
+        private static readonly int oneGameDuration = 100 * 60;
+
         private readonly int playerCount;
         private readonly GamePlayer[] players;
 
         private double cameraRealX;
         private int cameraIntX;
 
+        private Random random;
+
         private State state;
         private IEnumerator<int> stateCoroutine;
         private int sleepCount;
+
         private int countDown;
 
-        private Random random;
         private List<GameCoin> coins;
-        private int coinGenDuration;
+        private List<GameCoin> newCoins;
+        private int coinGenPeriod;
+        private int coinGenCount;
+
+        private List<GameBomb> bombs;
+        private int bombGenPeriod;
+        private int bombGenCount;
 
         private int elapsedTime;
         private int remainingTime;
+
+        private int[] playerRank;
 
         public GameWorld(int playerCount)
         {
             this.playerCount = playerCount;
             players = new GamePlayer[playerCount];
+            var cx = fieldWidth / 2;
+            var left = cx - Setting.ScreenWidth / 2 + (double)Setting.ScreenWidth / (playerCount + 1);
+            var stride = (double)Setting.ScreenWidth / (playerCount + 1);
             for (var i = 0; i < playerCount; i++)
             {
-                players[i] = new GamePlayer(this, i, 100 * i);
+                players[i] = new GamePlayer(this, i, left + i * stride);
             }
             SetCameraCenterX(GetAveragePlayerX());
+
+            random = new Random();
 
             state = State.Waiting;
             stateCoroutine = StateCoroutine().GetEnumerator();
             sleepCount = 0;
+
+            Reset();
+        }
+
+        private void Reset()
+        {
             countDown = 0;
 
-            random = new Random();
             coins = new List<GameCoin>();
-            coinGenDuration = 0;
+            newCoins = new List<GameCoin>();
+            coinGenPeriod = initCoinGenPeriod;
+            coinGenCount = 0;
+
+            bombs = new List<GameBomb>();
+            bombGenPeriod = initBombGenPeriod;
+            bombGenCount = bombGenPeriod + random.Next(bombGenPeriod);
 
             elapsedTime = 0;
-            remainingTime = 60 * 60;
+            remainingTime = oneGameDuration;
         }
 
         public void Update(IList<GameCommand> command)
@@ -61,25 +94,10 @@ namespace OitGame1
             }
             SetCameraCenterX(GetAveragePlayerX());
 
-            if (state == State.Playing)
-            {
-                if (coinGenDuration == 0)
-                {
-                    var x = fieldWidth * random.NextDouble();
-                    coins.Add(new GameCoin(this, x));
-                    coinGenDuration = 15 + random.Next(15);
-                }
-                else
-                {
-                    coinGenDuration--;
-                }
-            }
-            foreach (var coin in coins)
-            {
-                coin.Update();
-            }
-
-            CheckCoinCollision();
+            UpdateItems();
+            CheckItemCollision();
+            DeleteItems();
+            AddNewCoins();
 
             UpdateCoroutine();
 
@@ -91,14 +109,59 @@ namespace OitGame1
                     remainingTime--;
                 }
             }
+
+
+            var coeff = (double)remainingTime / oneGameDuration;
+            coeff *= coeff;
+            coinGenPeriod = (int)(minCoinGenPeriod + (initCoinGenPeriod - minCoinGenPeriod) * coeff);
+            bombGenPeriod = (int)(minBombGenPeriod + (initBombGenPeriod - minBombGenPeriod) * coeff);
         }
 
-        public void CheckCoinCollision()
+        private void UpdateItems()
+        {
+            if (state == State.Playing)
+            {
+                if (coinGenCount == 0)
+                {
+                    var x = fieldWidth * random.NextDouble();
+                    coins.Add(new GameCoin(this, x));
+                    coinGenCount = coinGenPeriod + random.Next(coinGenPeriod);
+                }
+                else
+                {
+                    coinGenCount--;
+                }
+                if (bombGenCount == 0)
+                {
+                    var x = fieldWidth * random.NextDouble();
+                    bombs.Add(new GameBomb(this, x));
+                    bombGenCount = bombGenPeriod + random.Next(bombGenPeriod);
+                }
+                else
+                {
+                    bombGenCount--;
+                }
+            }
+
+            foreach (var coin in coins)
+            {
+                coin.Update();
+            }
+
+            foreach (var bomb in bombs)
+            {
+                bomb.Update();
+            }
+        }
+
+        private void CheckItemCollision()
         {
             foreach (var player in players)
             {
+                if (!player.CanMove) continue;
                 foreach (var coin in coins)
                 {
+                    if (coin.Deleted) continue;
                     if (player.IsOverlappedWith(coin))
                     {
                         player.GetCoin(coin);
@@ -106,10 +169,53 @@ namespace OitGame1
                     }
                 }
             }
-            coins.RemoveAll(coin => coin.Deleted);
+            foreach (var player in players)
+            {
+                foreach (var bomb in bombs)
+                {
+                    if (bomb.Deleted) continue;
+                    if (player.IsOverlappedWith(bomb))
+                    {
+                        player.GetBomb(bomb);
+                        bomb.Delete();
+                    }
+                }
+            }
         }
 
-        public void UpdateCoroutine()
+        private void DeleteItems()
+        {
+            coins.RemoveAll(coin => coin.Deleted);
+            bombs.RemoveAll(bomb => bomb.Deleted);
+        }
+
+        public void AddCoin(GameCoin coin)
+        {
+            newCoins.Add(coin);
+        }
+
+        private void AddNewCoins()
+        {
+            foreach (var coin in newCoins)
+            {
+                coins.Add(coin);
+            }
+            newCoins.Clear();
+        }
+
+        private void ClearItems()
+        {
+            foreach (var coin in coins)
+            {
+                coin.Delete();
+            }
+            foreach (var bomb in bombs)
+            {
+                bomb.Delete();
+            }
+        }
+
+        private void UpdateCoroutine()
         {
             sleepCount--;
             if (sleepCount <= 0)
@@ -149,6 +255,11 @@ namespace OitGame1
                         }
                         break;
                     case State.Ready:
+                        Reset();
+                        foreach (var player in players)
+                        {
+                            player.ResetCoinCount();
+                        }
                         for (var i = 0; i < 3; i++)
                         {
                             yield return 60;
@@ -158,12 +269,41 @@ namespace OitGame1
                         yield return 1;
                         break;
                     case State.Playing:
+                        if (remainingTime == 0)
+                        {
+                            foreach (var player in players)
+                            {
+                                player.Reset();
+                            }
+                            ClearItems();
+                            playerRank = GetPlayerRank();
+                            state = State.Waiting;
+                        }
                         yield return 1;
                         break;
                     default:
                         throw new Exception("＼(^o^)／");
                 }
             }
+        }
+
+        private int[] GetPlayerRank()
+        {
+            var rank = new int[playerCount];
+            for (var i = 0; i < playerCount; i++)
+            {
+                var r = 0;
+                for (var j = 0; j < playerCount; j++)
+                {
+                    if (i == j) continue;
+                    if (players[j].CoinCount > players[i].CoinCount)
+                    {
+                        r++;
+                    }
+                }
+                rank[i] = r;
+            }
+            return rank;
         }
 
         public void Draw(IGameGraphics graphics)
@@ -178,15 +318,26 @@ namespace OitGame1
             {
                 coin.Draw(graphics);
             }
+            foreach (var bomb in bombs)
+            {
+                bomb.Draw(graphics);
+            }
             foreach (var player in players)
             {
                 player.Draw(graphics);
             }
             if (state == State.Waiting)
             {
-                foreach (var player in players)
+                DrawPlayerState(graphics);
+                if (playerRank != null)
                 {
-                    player.DrawReady(graphics);
+                    var drawX = (Setting.ScreenWidth - 256) / 2;
+                    graphics.DrawImage(GameImage.Message, 256, 128, 1, 1, drawX, 64);
+                }
+                else
+                {
+                    var drawX = (Setting.ScreenWidth - 512) / 2;
+                    graphics.DrawImage(GameImage.Title, drawX, 64);
                 }
             }
             else if (state == State.Ready)
@@ -204,8 +355,91 @@ namespace OitGame1
                     var drawX = (Setting.ScreenWidth - 256) / 2;
                     graphics.DrawImage(GameImage.Message, 256, 128, 1, 0, drawX, 64);
                 }
+                DrawTime(graphics);
             }
+            DrawHuds(graphics);
             graphics.End();
+        }
+
+        private void DrawPlayerState(IGameGraphics graphics)
+        {
+            for (var i = 0; i < players.Length; i++)
+            {
+                var rank = -1;
+                if (playerRank != null)
+                {
+                    rank = playerRank[i];
+                }
+                players[i].DrawState(graphics, rank);
+            }
+        }
+
+        private void DrawTime(IGameGraphics graphics)
+        {
+            var sec = (int)(Math.Ceiling(remainingTime / 60.0));
+            var digits = 0;
+            {
+                var n = sec;
+                while (n > 0)
+                {
+                    digits++;
+                    n /= 10;
+                }
+            }
+            var drawOffsetX = (Setting.ScreenWidth - 32 * digits) / 2;
+            var drawOffsetY = 16;
+            {
+                var n = sec;
+                for (var i = 0; i < digits; i++)
+                {
+                    var d = n % 10;
+                    var row = d / 4;
+                    var col = d % 4;
+                    var drawX = drawOffsetX + 32 * (digits - i - 1);
+                    graphics.DrawImage(GameImage.Time, 32, 32, row, col, drawX, drawOffsetY);
+                    n /= 10;
+                }
+            }
+        }
+
+        private void DrawHuds(IGameGraphics graphics)
+        {
+            var hudSpace = 96 * players.Length;
+            var emptySpace = Setting.ScreenWidth - hudSpace;
+            var left = emptySpace / (players.Length + 1);
+            var stride = left + 96;
+            var drawX = left;
+            foreach (var player in Players)
+            {
+                DrawHud(graphics, player, drawX, Setting.ScreenHeight - 48);
+                drawX += stride;
+            }
+        }
+
+        private void DrawHud(IGameGraphics graphics, GamePlayer player, int x, int y)
+        {
+            graphics.DrawImage(GameImage.Hud, 96, 32, 3, 0, x, y);
+
+            var ammo = player.CoinCount;
+            if (ammo / 100 > 0)
+            {
+                DrawNumber(graphics, ammo / 100 % 10, x + 32, y);
+            }
+            if (ammo / 10 > 0)
+            {
+                DrawNumber(graphics, ammo / 10 % 10, x + 32 + 19, y);
+            }
+            if (ammo >= 0)
+            {
+                DrawNumber(graphics, ammo % 10, x + 32 + 19 + 19, y);
+            }
+
+            graphics.DrawImage(GameImage.Player, 32, 32, 2 * player.PlayerIndex, 4, x, y);
+        }
+
+        private void DrawNumber(IGameGraphics graphics, int n, int x, int y)
+        {
+            graphics.DrawImage(GameImage.Hud, 32, 32, 4 + n / 8, n % 8, x, y);
         }
 
         private void SetCameraCenterX(double x)
