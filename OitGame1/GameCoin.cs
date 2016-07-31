@@ -81,13 +81,33 @@ namespace OitGame1
                 vanishingCount++;
                 if (vanishingCount >= 180)
                 {
-                    Delete();
+                    Delete(false);
                 }
             }
         }
 
-        public void Delete()
+        public void Delete(bool withStar)
         {
+            if (withStar)
+            {
+                var n = 10;
+                var phase = 2 * Math.PI * World.Random.NextDouble();
+                for (var i = 0; i < n; i++)
+                {
+                    var theta = 2 * Math.PI * i / n + phase;
+                    var cos = Math.Cos(theta);
+                    var sin = -Math.Sin(theta);
+                    var x = CenterX + 8 * cos;
+                    var y = CenterY + 8 * sin;
+                    var tx = CenterX + 64 * cos;
+                    var ty = CenterY + 64 * sin;
+                    World.AddParticle(new Star(World, x, y, tx, ty));
+                }
+            }
+            else
+            {
+                World.AddParticle(new SmallExplosion(World, CenterX, CenterY));
+            }
             deleted = true;
         }
 

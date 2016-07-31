@@ -13,7 +13,7 @@ namespace OitGame1
         private static readonly int initBombGenPeriod = 120;
         private static readonly int minBombGenPeriod = 20;
 
-        private static readonly int oneGameDuration = 100 * 60;
+        private static readonly int oneGameDuration = 30 * 60;
 
         private readonly int playerCount;
         private readonly GamePlayer[] players;
@@ -26,6 +26,8 @@ namespace OitGame1
         private State state;
         private IEnumerator<int> stateCoroutine;
         private int sleepCount;
+
+        private List<Particle> particles;
 
         private int countDown;
 
@@ -62,6 +64,8 @@ namespace OitGame1
             stateCoroutine = StateCoroutine().GetEnumerator();
             sleepCount = 0;
 
+            particles = new List<Particle>();
+
             Reset();
         }
 
@@ -84,6 +88,8 @@ namespace OitGame1
 
         public void Update(IList<GameCommand> command)
         {
+            UpdateParticles();
+
             for (var i = 0; i < playerCount; i++)
             {
                 players[i].Update1(command[i]);
@@ -115,6 +121,15 @@ namespace OitGame1
             coeff *= coeff;
             coinGenPeriod = (int)(minCoinGenPeriod + (initCoinGenPeriod - minCoinGenPeriod) * coeff);
             bombGenPeriod = (int)(minBombGenPeriod + (initBombGenPeriod - minBombGenPeriod) * coeff);
+        }
+
+        private void UpdateParticles()
+        {
+            foreach (var particle in particles)
+            {
+                particle.Update();
+            }
+            particles.RemoveAll(particle => particle.Deleted);
         }
 
         private void UpdateItems()
@@ -165,7 +180,7 @@ namespace OitGame1
                     if (player.IsOverlappedWith(coin))
                     {
                         player.GetCoin(coin);
-                        coin.Delete();
+                        coin.Delete(true);
                     }
                 }
             }
@@ -177,7 +192,7 @@ namespace OitGame1
                     if (player.IsOverlappedWith(bomb))
                     {
                         player.GetBomb(bomb);
-                        bomb.Delete();
+                        bomb.Delete(true);
                     }
                 }
             }
@@ -207,12 +222,17 @@ namespace OitGame1
         {
             foreach (var coin in coins)
             {
-                coin.Delete();
+                coin.Delete(false);
             }
             foreach (var bomb in bombs)
             {
-                bomb.Delete();
+                bomb.Delete(false);
             }
+        }
+
+        public void AddParticle(Particle particle)
+        {
+            particles.Add(particle);
         }
 
         private void UpdateCoroutine()
@@ -309,11 +329,23 @@ namespace OitGame1
         public void Draw(IGameGraphics graphics)
         {
             graphics.Begin();
-            graphics.SetColor(255, 128, 128, 192);
-            graphics.DrawRectangle(0, 0, Setting.ScreenWidth, Setting.ScreenHeight);
             graphics.SetColor(255, 255, 255, 255);
+            {
+                var dx = cameraIntX + Setting.ScreenWidth / 2 - fieldWidth / 2;
+                var drawX = (int)Math.Round((Setting.ScreenWidth - 1024) / 2 - dx / 4.0);
+                graphics.DrawImage(GameImage.BlueSky, drawX, 0);
+            }
+            {
+                var dx = cameraIntX + Setting.ScreenWidth / 2 - fieldWidth / 2;
+                var drawX = (int)Math.Round((Setting.ScreenWidth - 1024) / 2 - dx / 2.0);
+                graphics.DrawImage(GameImage.Trees, drawX, 256);
+            }
             graphics.DrawImage(GameImage.Field, -cameraIntX, Setting.ScreenHeight - 128);
             graphics.SetColor(255, 255, 255, 255);
+            foreach (var particle in particles)
+            {
+                particle.Draw(graphics);
+            }
             foreach (var coin in coins)
             {
                 coin.Draw(graphics);
@@ -434,7 +466,8 @@ namespace OitGame1
                 DrawNumber(graphics, ammo % 10, x + 32 + 19 + 19, y);
             }
 
-            graphics.DrawImage(GameImage.Player, 32, 32, 2 * player.PlayerIndex, 4, x, y);
+            var pi = player.PlayerIndex % 4;
+            graphics.DrawImage(GameImage.Player, 32, 32, 2 * pi, 4, x, y);
         }
 
         private void DrawNumber(IGameGraphics graphics, int n, int x, int y)

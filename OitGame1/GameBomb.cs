@@ -42,13 +42,21 @@ namespace OitGame1
                 vanishingCount++;
                 if (vanishingCount >= 600)
                 {
-                    Delete();
+                    Delete(false);
                 }
             }
         }
 
-        public void Delete()
+        public void Delete(bool explode)
         {
+            if (!explode)
+            {
+                World.AddParticle(new SmallExplosion(World, CenterX, CenterY));
+            }
+            else
+            {
+                World.AddParticle(new Explosion(World, CenterX, CenterY));
+            }
             deleted = true;
         }
 

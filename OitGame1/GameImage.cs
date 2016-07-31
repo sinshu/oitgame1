@@ -9,10 +9,15 @@ namespace OitGame1
         Coin,
         Bomb,
         Field,
+        BlueSky,
+        Trees,
         Message,
         Hud,
         Time,
         Rank,
-        Title
+        Title,
+        SmallExplosion,
+        Explosion,
+        Star
     }
 }
