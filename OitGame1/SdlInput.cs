@@ -17,6 +17,7 @@ namespace OitGame1
         private readonly JoyStick[] joySticks;
 
         private GameCommand[] commands;
+        private GameCommand[] emptyCommands;
 
         static SdlInput()
         {
@@ -43,6 +44,12 @@ namespace OitGame1
                 joySticks[i] = new JoyStick(i);
             }
             commands = new GameCommand[playerCount];
+            emptyCommands = new GameCommand[playerCount];
+            for (var i = 0; i < playerCount; i++)
+            {
+                commands[i] = new GameCommand(false, false, false, false);
+                emptyCommands[i] = new GameCommand(false, false, false, false);
+            }
         }
 
         public void Update()
@@ -70,7 +77,14 @@ namespace OitGame1
         {
             get
             {
-                return commands;
+                if (SDLFrame.IsActive)
+                {
+                    return commands;
+                }
+                else
+                {
+                    return emptyCommands;
+                }
             }
         }
 

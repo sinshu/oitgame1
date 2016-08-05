@@ -1280,8 +1280,8 @@ namespace Yanesdk.Draw
 
 				int option = (int)(localOption.Smooth ? Gl.GL_LINEAR : Gl.GL_NEAREST);
 
-				Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, option);
-				Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, option);
+				Gl.glTexParameteri(textureType, Gl.GL_TEXTURE_MIN_FILTER, option);
+				Gl.glTexParameteri(textureType, Gl.GL_TEXTURE_MAG_FILTER, option);
 
 				//	surface.Dispose();	//	画像もったいないから解放しておく
 				// ここではなくて、どこか適切な場所でするべき…か。

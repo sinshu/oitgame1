@@ -1201,7 +1201,7 @@ namespace Yanesdk.Sound {
 				// 設定した値を記憶しておく。(master volume掛け算前)
 				volumes[ch] = volume;
 
-				Console.WriteLine("ch {0} = {1} Volume", ch, (int)(vol * SDL.MIX_MAX_VOLUME));
+				//Console.WriteLine("ch {0} = {1} Volume", ch, (int)(vol * SDL.MIX_MAX_VOLUME));
 			}
 
 			/// <summary>

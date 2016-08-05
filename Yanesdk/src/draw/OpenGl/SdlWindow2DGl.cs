@@ -365,6 +365,8 @@ namespace Yanesdk.Draw
 	/// </code>
 	public class SDLFrame
 	{
+        private static bool isActive = true;
+
 		/// <summary>
 		/// SDLWindowを用いる場合は、必ず定期的にこれを呼び出すこと。
 		/// </summary>
@@ -392,9 +394,25 @@ IMEバーをタスクバーから取り出すか、非表示にするか、
 			unsafe
 			{
 				SDL.SDL_Event evt = new SDL.SDL_Event();
-				while (SDL.SDL_PollEvent(ref evt) != 0)
-					if (evt.type == SDL.SDL_QUIT)
-						return YanesdkResult.ShouldBeQuit;
+                while (SDL.SDL_PollEvent(ref evt) != 0)
+                {
+                    if (evt.type == SDL.SDL_QUIT)
+                    {
+                        return YanesdkResult.ShouldBeQuit;
+                    }
+                    else if (evt.type == SDL.SDL_ACTIVEEVENT)
+                    {
+                        switch (evt.active.state)
+                        {
+                            case 2:
+                                isActive = false;
+                                break;
+                            case 6:
+                                isActive = true;
+                                break;
+                        }
+                    }
+                }
 				return YanesdkResult.NoError;
 			}
 		}
@@ -411,6 +429,14 @@ IMEバーをタスクバーから取り出すか、非表示にするか、
 			if (Yanesdk.System.Platform.IsMac)
 				Yanesdk.Sdl.MacAPI.MacAPI.ExitToShell();
 		}
+
+        public static bool IsActive
+        {
+            get
+            {
+                return isActive;
+            }
+        }
 	}
 
 }
