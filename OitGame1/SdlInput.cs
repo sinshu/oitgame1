@@ -14,6 +14,7 @@ namespace OitGame1
         private readonly int playerCount;
         private readonly KeyBoardInput keyBoardInput;
         private readonly MouseInput mouseInput;
+        private readonly JoyStick[] joySticks;
 
         private GameCommand[] commands;
 
@@ -36,6 +37,11 @@ namespace OitGame1
             {
                 mouseInput.Hide();
             }
+            joySticks = new JoyStick[playerCount];
+            for (var i = 0; i < playerCount; i++)
+            {
+                joySticks[i] = new JoyStick(i);
+            }
             commands = new GameCommand[playerCount];
         }
 
@@ -46,10 +52,16 @@ namespace OitGame1
             for (var i = 0; i < playerCount; i++)
             {
                 var keySetting = GetKeySetting(i);
-                var left = keyBoardInput.IsPress(keySetting.left);
-                var right = keyBoardInput.IsPress(keySetting.right);
+                var joyStick = joySticks[i];
+                joyStick.Update();
+                var left = keyBoardInput.IsPress(keySetting.left) || joyStick.IsPress(2);
+                var right = keyBoardInput.IsPress(keySetting.right) || joyStick.IsPress(3);
                 var jump = keyBoardInput.IsPress(keySetting.jump);
-                var start = keyBoardInput.IsPress(keySetting.start);
+                for (var j = 4; j < 8; j++)
+                {
+                    jump = jump || joyStick.IsPress(j);
+                }
+                var start = keyBoardInput.IsPress(keySetting.start) || joyStick.IsPress(11);
                 commands[i] = new GameCommand(left, right, jump, start);
             }
         }

@@ -8,17 +8,20 @@ namespace OitGame1
         private static readonly int fieldWidth = 1024;
         private static readonly int floorY = Setting.ScreenHeight - 64;
 
+        private static readonly double cameraSpeedFactor = 1.0 / 16.0;
+
         private static readonly int initCoinGenPeriod = 20;
         private static readonly int minCoinGenPeriod = 5;
         private static readonly int initBombGenPeriod = 120;
         private static readonly int minBombGenPeriod = 20;
 
-        private static readonly int oneGameDuration = 30 * 60;
+        private static readonly int oneGameDuration = 100 * 60;
 
         private readonly int playerCount;
         private readonly GamePlayer[] players;
 
-        private double cameraRealX;
+        private double cameraTargetX;
+        private double cameraX;
         private int cameraIntX;
 
         private Random random;
@@ -56,7 +59,7 @@ namespace OitGame1
             {
                 players[i] = new GamePlayer(this, i, left + i * stride);
             }
-            SetCameraCenterX(GetAveragePlayerX());
+            InitCameraCenterX(GetAveragePlayerX());
 
             random = new Random();
 
@@ -475,18 +478,26 @@ namespace OitGame1
             graphics.DrawImage(GameImage.Hud, 32, 32, 4 + n / 8, n % 8, x, y);
         }
 
+        private void InitCameraCenterX(double x)
+        {
+            cameraTargetX = x - Setting.ScreenWidth / 2;
+            cameraX = cameraTargetX;
+            cameraIntX = (int)Math.Round(cameraX);
+        }
+
         private void SetCameraCenterX(double x)
         {
-            cameraRealX = x - Setting.ScreenWidth / 2;
-            if (cameraRealX < 0)
+            cameraTargetX = x - Setting.ScreenWidth / 2;
+            if (cameraTargetX < 0)
             {
-                cameraRealX = 0;
+                cameraTargetX = 0;
             }
-            if (cameraRealX > fieldWidth - Setting.ScreenWidth)
+            if (cameraTargetX > fieldWidth - Setting.ScreenWidth)
             {
-                cameraRealX = fieldWidth - Setting.ScreenWidth;
+                cameraTargetX = fieldWidth - Setting.ScreenWidth;
             }
-            cameraIntX = (int)Math.Round(cameraRealX);
+            cameraX = cameraSpeedFactor * cameraTargetX + (1.0 - cameraSpeedFactor) * cameraX;
+            cameraIntX = (int)Math.Round(cameraX);
         }
 
         private double GetAveragePlayerX()

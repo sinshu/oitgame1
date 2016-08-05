@@ -288,8 +288,8 @@ namespace OitGame1
 
         public void Draw(IGameGraphics graphics)
         {
-            var drawOffset = (32 - Width) / 2;
-            var drawX = (int)Math.Round(X - World.CameraLeft - drawOffset);
+            var drawOffset = (int)((32 - Width) / 2);
+            var drawX = (int)Math.Round(X) - World.CameraLeft - drawOffset;
             var drawY = (int)Math.Round(Y);
             var rowOffset = 2 * (playerIndex % 4);
             if (canMove)

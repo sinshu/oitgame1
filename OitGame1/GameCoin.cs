@@ -114,7 +114,7 @@ namespace OitGame1
         public void Draw(IGameGraphics graphics)
         {
             if (Right <= World.CameraLeft || Left >= World.CameraRight) return;
-            var drawX = (int)Math.Round(X - World.CameraLeft);
+            var drawX = (int)Math.Round(X) - World.CameraLeft;
             var drawY = (int)Math.Round(Y);
             var row = animation / 2 / 8;
             var col = animation / 2 % 8;

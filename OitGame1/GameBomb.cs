@@ -63,7 +63,7 @@ namespace OitGame1
         public void Draw(IGameGraphics graphics)
         {
             if (Right <= World.CameraLeft || Left >= World.CameraRight) return;
-            var drawX = (int)Math.Round(X - World.CameraLeft);
+            var drawX = (int)Math.Round(X) - World.CameraLeft;
             var drawY = (int)Math.Round(Y);
             graphics.DrawImage(GameImage.Bomb, drawX, drawY);
         }
