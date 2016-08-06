@@ -76,9 +76,10 @@ namespace OitGame1
         {
             UpdateX(command);
             UpdateY(command);
-            if (command.Start)
+            if (!ready && command.Start)
             {
                 ready = true;
+                World.PlaySound(GameSound.Ready);
             }
             if (!canMove)
             {
@@ -179,6 +180,7 @@ namespace OitGame1
                     state = State.InAir;
                     jumpUpDuration = initJumpUpDuration;
                     canJump = false;
+                    World.PlaySound(GameSound.Jump);
                 }
                 else if (state == State.InAir)
                 {
@@ -253,6 +255,7 @@ namespace OitGame1
         public void GetCoin(GameCoin coin)
         {
             coinCount++;
+            World.PlaySound(GameSound.Coin);
         }
 
         public void GetBomb(GameBomb bomb)
@@ -284,6 +287,7 @@ namespace OitGame1
                     World.AddCoin(new GameCoin(World, CenterX, CenterY, cvx, cvy));
                 }
             }
+            World.PlaySound(GameSound.Bomb);
         }
 
         public void Draw(IGameGraphics graphics)

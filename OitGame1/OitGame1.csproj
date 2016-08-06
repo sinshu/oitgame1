@@ -34,6 +34,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="sounds\Bgm.ogg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Explosion.cs" />
@@ -43,11 +46,14 @@
     <Compile Include="GameImage.cs" />
     <Compile Include="GameObject.cs" />
     <Compile Include="GamePlayer.cs" />
+    <Compile Include="GameSound.cs" />
     <Compile Include="GameWorld.cs" />
+    <Compile Include="IGameAudio.cs" />
     <Compile Include="IGameGraphics.cs" />
     <Compile Include="IGameInput.cs" />
     <Compile Include="OitGame1Application.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="SdlAudio.cs" />
     <Compile Include="SdlGraphics.cs" />
     <Compile Include="SdlInput.cs" />
     <Compile Include="Setting.cs" />
@@ -111,7 +117,26 @@
     <Content Include="images\Trees.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="sounds\Bomb.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\Coin.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\CountDown.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\Jump.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\Ready.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\Start.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

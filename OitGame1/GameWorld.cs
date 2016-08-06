@@ -15,7 +15,7 @@ namespace OitGame1
         private static readonly int initBombGenPeriod = 120;
         private static readonly int minBombGenPeriod = 20;
 
-        private static readonly int oneGameDuration = 100 * 60;
+        private static readonly int oneGameDuration = 30 * 60;
 
         private readonly int playerCount;
         private readonly GamePlayer[] players;
@@ -47,6 +47,8 @@ namespace OitGame1
         private int remainingTime;
 
         private int[] playerRank;
+
+        private IGameAudio audio;
 
         public GameWorld(int playerCount)
         {
@@ -115,6 +117,10 @@ namespace OitGame1
                 elapsedTime++;
                 if (remainingTime > 0)
                 {
+                    if (remainingTime <= 600 && remainingTime % 60 == 0)
+                    {
+                        PlaySound(GameSound.CountDown);
+                    }
                     remainingTime--;
                 }
             }
@@ -285,10 +291,12 @@ namespace OitGame1
                         }
                         for (var i = 0; i < 3; i++)
                         {
+                            PlaySound(GameSound.CountDown);
                             yield return 60;
                             countDown++;
                         }
                         state = State.Playing;
+                        PlaySound(GameSound.Start);
                         yield return 1;
                         break;
                     case State.Playing:
@@ -301,6 +309,7 @@ namespace OitGame1
                             ClearItems();
                             playerRank = GetPlayerRank();
                             state = State.Waiting;
+                            PlaySound(GameSound.Start);
                         }
                         yield return 1;
                         break;
@@ -332,6 +341,7 @@ namespace OitGame1
         public void Draw(IGameGraphics graphics)
         {
             graphics.Begin();
+            var sky = (double)elapsedTime / oneGameDuration;
             graphics.SetColor(255, 255, 255, 255);
             {
                 var dx = cameraIntX + Setting.ScreenWidth / 2 - fieldWidth / 2;
@@ -518,6 +528,14 @@ namespace OitGame1
             return (min + max) / 2;
         }
 
+        public void PlaySound(GameSound sound)
+        {
+            if (audio != null)
+            {
+                audio.PlaySound(sound);
+            }
+        }
+
         public int CameraLeft
         {
             get
@@ -563,6 +581,19 @@ namespace OitGame1
             get
             {
                 return floorY;
+            }
+        }
+
+        public IGameAudio Audio
+        {
+            get
+            {
+                return audio;
+            }
+
+            set
+            {
+                audio = value;
             }
         }
 

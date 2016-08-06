@@ -10,6 +10,7 @@ namespace OitGame1
     {
         private readonly SDLWindow window;
         private readonly SdlGraphics graphics;
+        private readonly SdlAudio audio;
         private readonly SdlInput input;
 
         private readonly GameWorld world;
@@ -25,12 +26,15 @@ namespace OitGame1
             window.TestVideoMode(Setting.ScreenWidth, Setting.ScreenHeight, bpp);
             window.EndScreenTest();
             graphics = new SdlGraphics(window);
+            audio = new SdlAudio();
             input = new SdlInput(fullscreen, playerCount);
             world = new GameWorld(playerCount);
+            world.Audio = audio;
         }
 
         public void Run()
         {
+            audio.StartMusic();
             timer = new FpsTimer();
             timer.Fps = 60;
             while (SDLFrame.PollEvent() == YanesdkResult.NoError)
@@ -53,6 +57,7 @@ namespace OitGame1
         {
             Console.WriteLine("OitGame1Application.Dispose");
             input.Dispose();
+            audio.Dispose();
             graphics.Dispose();
             window.Dispose();
         }

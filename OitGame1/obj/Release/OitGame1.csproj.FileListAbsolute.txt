@@ -43,3 +43,10 @@ C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Trees.png
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\SmallExplosion.png
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Explosion.png
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Star.png
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\sounds\Bomb.wav
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\sounds\Coin.wav
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\sounds\CountDown.wav
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\sounds\Jump.wav
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\sounds\Ready.wav
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\sounds\Start.wav
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\sounds\Bgm.ogg
