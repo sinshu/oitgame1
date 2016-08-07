@@ -95,7 +95,7 @@ namespace OitGame1
 
         public void Dispose()
         {
-            Console.WriteLine("SdlInput.Dispose");
+            //Console.WriteLine("SdlInput.Dispose");
             keyBoardInput.Dispose();
             mouseInput.Dispose();
         }

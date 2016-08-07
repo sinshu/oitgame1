@@ -15,7 +15,7 @@ namespace OitGame1
         private static readonly int initBombGenPeriod = 120;
         private static readonly int minBombGenPeriod = 20;
 
-        private static readonly int oneGameDuration = 30 * 60;
+        private static readonly int oneGameDuration = 100 * 60;
 
         private readonly int playerCount;
         private readonly GamePlayer[] players;
@@ -127,6 +127,7 @@ namespace OitGame1
 
 
             var coeff = (double)remainingTime / oneGameDuration;
+            coeff *= coeff;
             coeff *= coeff;
             coinGenPeriod = (int)(minCoinGenPeriod + (initCoinGenPeriod - minCoinGenPeriod) * coeff);
             bombGenPeriod = (int)(minBombGenPeriod + (initBombGenPeriod - minBombGenPeriod) * coeff);

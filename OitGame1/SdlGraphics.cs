@@ -31,7 +31,7 @@ namespace OitGame1
             for (var i = 0; i < textureCount; i++)
             {
                 var path = "images/" + Enum.GetName(typeof(GameImage), i) + ".png";
-                Console.WriteLine(path);
+                //Console.WriteLine(path);
                 textures[i] = GetTexture(path);
             }
         }
@@ -105,7 +105,7 @@ namespace OitGame1
 
         public void Dispose()
         {
-            Console.WriteLine("SdlGraphics.Dispose");
+            //Console.WriteLine("SdlGraphics.Dispose");
             foreach (var texture in textures)
             {
                 texture.Dispose();

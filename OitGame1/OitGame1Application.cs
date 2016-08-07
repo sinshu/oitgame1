@@ -55,7 +55,7 @@ namespace OitGame1
 
         public void Dispose()
         {
-            Console.WriteLine("OitGame1Application.Dispose");
+            //Console.WriteLine("OitGame1Application.Dispose");
             input.Dispose();
             audio.Dispose();
             graphics.Dispose();

@@ -31,7 +31,7 @@ namespace OitGame1
 
         private Sound LoadSound(string path, int channel, float gain)
         {
-            Console.WriteLine(path);
+            //Console.WriteLine(path);
             var sound = new Yanesdk.Sound.Sound();
             var result = sound.Load(path, channel);
             if (result == YanesdkResult.NoError)
@@ -63,7 +63,7 @@ namespace OitGame1
 
         public void Dispose()
         {
-            Console.WriteLine("SdlAudio.Dispose");
+            //Console.WriteLine("SdlAudio.Dispose");
             foreach (var sound in sounds)
             {
                 sound.Stop();
