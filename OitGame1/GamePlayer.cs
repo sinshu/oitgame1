@@ -83,6 +83,7 @@ namespace OitGame1
             }
             if (!canMove)
             {
+                CreateSmoke();
                 if (damageDuration > 0)
                 {
                     damageDuration--;
@@ -211,6 +212,45 @@ namespace OitGame1
             if (!command.Jump)
             {
                 canJump = true;
+            }
+        }
+
+        private void CreateSmoke()
+        {
+            int n, p;
+            if (damageDuration > 170)
+            {
+                n = 3;
+                p = 1;
+            }
+            else if (damageDuration > 150)
+            {
+                n = 1;
+                p = 1;
+            }
+            else if (damageDuration > 120)
+            {
+                n = 1;
+                p = 4;
+            }
+            else if (damageDuration > 90)
+            {
+                n = 1;
+                p = 8;
+            }
+            else
+            {
+                n = 1;
+                p = 16;
+            }
+            for (var i = 0; i < n; i++)
+            {
+                var offsetX = 16 * World.Random.NextDouble() - 8;
+                var offsetY = 16 * World.Random.NextDouble() - 8;
+                if (World.Random.Next(0, p) == 0)
+                {
+                    World.AddParticle(new Smoke(World, CenterX + offsetX, CenterY + offsetY));
+                }
             }
         }
 

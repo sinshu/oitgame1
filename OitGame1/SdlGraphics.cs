@@ -83,6 +83,17 @@ namespace OitGame1
             screen.Blt(texture, x, y, rect);
         }
 
+        public void DrawImage(GameImage image, int width, int height, int row, int col, int x, int y, int rotation)
+        {
+            var left = width * col;
+            var top = height * row;
+            var right = left + width;
+            var bottom = top + height;
+            var rect = new Rect(left, top, right, bottom);
+            var texture = textures[(int)image];
+            screen.BltRotate(texture, x, y, rect, rotation, 1, width / 2, height / 2);
+        }
+
         public void Test(int x, int y)
         {
             screen.Blt(textures[0], x, y);

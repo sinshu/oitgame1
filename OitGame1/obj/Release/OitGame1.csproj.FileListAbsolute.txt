@@ -50,3 +50,4 @@ C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\Yanesdk.pdb
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\obj\Release\OitGame1.csprojResolveAssemblyReference.cache
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\obj\Release\ochimono.exe
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\obj\Release\ochimono.pdb
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Smoke.png

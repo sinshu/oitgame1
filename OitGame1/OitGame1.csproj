@@ -62,6 +62,7 @@
     <Compile Include="Setting.cs" />
     <Compile Include="Particle.cs" />
     <Compile Include="SmallExplosion.cs" />
+    <Compile Include="Smoke.cs" />
     <Compile Include="Star.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
@@ -107,6 +108,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="images\SmallExplosion.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="images\Smoke.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="images\Star.png">

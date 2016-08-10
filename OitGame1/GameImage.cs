@@ -18,6 +18,7 @@ namespace OitGame1
         Title,
         SmallExplosion,
         Explosion,
-        Star
+        Star,
+        Smoke
     }
 }
