@@ -19,6 +19,7 @@ namespace OitGame1
         SmallExplosion,
         Explosion,
         Star,
-        Smoke
+        Smoke,
+        Trophy
     }
 }

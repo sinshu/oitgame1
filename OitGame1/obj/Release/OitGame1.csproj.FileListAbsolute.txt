@@ -51,3 +51,4 @@ C:\Users\Sinshu\Desktop\oitgame1\OitGame1\obj\Release\OitGame1.csprojResolveAsse
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\obj\Release\ochimono.exe
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\obj\Release\ochimono.pdb
 C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Smoke.png
+C:\Users\Sinshu\Desktop\oitgame1\OitGame1\bin\Release\images\Trophy.png

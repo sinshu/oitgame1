@@ -43,6 +43,9 @@ namespace OitGame1
 
         private int coinCount;
 
+        private int trophyCount;
+        private int unkoCount;
+
         public GamePlayer(GameWorld world, int playerIndex, double x)
             : base(world)
         {
@@ -57,6 +60,8 @@ namespace OitGame1
             canJump = true;
             Reset();
             ResetCoinCount();
+            trophyCount = 0;
+            unkoCount = 0;
         }
 
         public void Reset()
@@ -310,7 +315,7 @@ namespace OitGame1
             }
             canMove = false;
             damageDuration = 180;
-            var coinPenalty = 10;
+            var coinPenalty = (int)Math.Ceiling((double)coinCount / 5);
             if (coinCount < coinPenalty)
             {
                 coinPenalty = coinCount;
@@ -324,7 +329,7 @@ namespace OitGame1
                     var theta = 2 * Math.PI * i / coinPenalty;
                     var cvx = 8 * Math.Cos(theta + phase) + World.Random.NextDouble() - 0.5;
                     var cvy = 8 * -Math.Sin(theta + phase) + World.Random.NextDouble() - 0.5;
-                    World.AddCoin(new GameCoin(World, CenterX, CenterY, cvx, cvy));
+                    World.AddCoin(new GameCoin(World, CenterX, CenterY, cvx, cvy, this));
                 }
             }
             World.PlaySound(GameSound.Bomb);
@@ -332,6 +337,10 @@ namespace OitGame1
 
         public void Draw(IGameGraphics graphics)
         {
+            if (playerIndex >= 4)
+            {
+                graphics.SetColor(255, 0, 255, 0);
+            }
             var drawOffset = (int)((32 - Width) / 2);
             var drawX = (int)Math.Round(X) - World.CameraLeft - drawOffset;
             var drawY = (int)Math.Round(Y);
@@ -381,6 +390,7 @@ namespace OitGame1
                 }
                 graphics.DrawImage(GameImage.Player, 32, 32, rowOffset + 1, anim, drawX, drawY);
             }
+            graphics.SetColor(255, 255, 255, 255);
         }
 
         public void DrawState(IGameGraphics graphics, int rank)
@@ -402,6 +412,16 @@ namespace OitGame1
                 var drawY = (int)Math.Round(Top - 32);
                 graphics.DrawImage(GameImage.Ready, drawX, drawY);
             }
+        }
+
+        public void AddTrophy()
+        {
+            trophyCount++;
+        }
+
+        public void AddUnko()
+        {
+            unkoCount++;
         }
 
         public override double Width
@@ -449,6 +469,22 @@ namespace OitGame1
             get
             {
                 return coinCount;
+            }
+        }
+
+        public int TrophyCount
+        {
+            get
+            {
+                return trophyCount;
+            }
+        }
+
+        public int UnkoCount
+        {
+            get
+            {
+                return unkoCount;
             }
         }
 

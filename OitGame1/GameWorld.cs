@@ -183,10 +183,10 @@ namespace OitGame1
         {
             foreach (var player in players)
             {
-                if (!player.CanMove) continue;
                 foreach (var coin in coins)
                 {
                     if (coin.Deleted) continue;
+                    if (!player.CanMove && coin.Parent == player) continue;
                     if (player.IsOverlappedWith(coin))
                     {
                         player.GetCoin(coin);
@@ -309,6 +309,7 @@ namespace OitGame1
                             }
                             ClearItems();
                             playerRank = GetPlayerRank();
+                            GiveTrophy();
                             state = State.Waiting;
                             PlaySound(GameSound.Start);
                         }
@@ -337,6 +338,22 @@ namespace OitGame1
                 rank[i] = r;
             }
             return rank;
+        }
+
+        private void GiveTrophy()
+        {
+            var min = int.MaxValue;
+            var max = int.MinValue;
+            foreach (var rank in playerRank)
+            {
+                if (rank < min) min = rank;
+                if (rank > max) max = rank;
+            }
+            for (var i = 0; i < playerCount; i++)
+            {
+                if (playerRank[i] == min) players[i].AddTrophy();
+                if (playerRank[i] == max) players[i].AddUnko();
+            }
         }
 
         public void Draw(IGameGraphics graphics)
@@ -481,7 +498,18 @@ namespace OitGame1
             }
 
             var pi = player.PlayerIndex % 4;
+            if (player.PlayerIndex >= 4) graphics.SetColor(255, 0, 255, 0);
             graphics.DrawImage(GameImage.Player, 32, 32, 2 * pi, 4, x, y);
+            if (player.PlayerIndex >= 4) graphics.SetColor(255, 255, 255, 255);
+
+            for (var i = 0; i < Math.Min(player.TrophyCount, 6); i++)
+            {
+                graphics.DrawImage(GameImage.Trophy, 16, 16, 0, 0, x + 16 * i, y - 16);
+            }
+            for (var i = 0; i < Math.Min(player.UnkoCount, 6); i++)
+            {
+                graphics.DrawImage(GameImage.Trophy, 16, 16, 0, 1, x + 16 * i, y + 32);
+            }
         }
 
         private void DrawNumber(IGameGraphics graphics, int n, int x, int y)

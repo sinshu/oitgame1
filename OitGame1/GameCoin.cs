@@ -16,6 +16,7 @@ namespace OitGame1
         private double vy;
 
         private bool fast;
+        private GamePlayer parent;
 
         private int animation;
 
@@ -32,13 +33,14 @@ namespace OitGame1
             vx = 0;
             vy = 0;
             fast = false;
+            parent = null;
             animation = world.Random.Next(60);
             vanishing = false;
             vanishingCount = 0;
             deleted = false;
         }
 
-        public GameCoin(GameWorld world, double x, double y, double vy, double vx)
+        public GameCoin(GameWorld world, double x, double y, double vy, double vx, GamePlayer parent)
             : base(world)
         {
             CenterX = x;
@@ -46,6 +48,7 @@ namespace OitGame1
             this.vx = vx;
             this.vy = vy;
             fast = true;
+            this.parent = parent;
             animation = world.Random.Next(60);
         }
 
@@ -134,6 +137,14 @@ namespace OitGame1
             get
             {
                 return 32;
+            }
+        }
+
+        public GamePlayer Parent
+        {
+            get
+            {
+                return parent;
             }
         }
 

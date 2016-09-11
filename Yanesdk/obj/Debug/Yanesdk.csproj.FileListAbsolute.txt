@@ -27,3 +27,4 @@ C:\Users\Sinshu\Desktop\oitgame1\Yanesdk\obj\Debug\Yanesdk.Properties.Resources.
 C:\Users\Sinshu\Desktop\oitgame1\Yanesdk\obj\Debug\Yanesdk.csproj.GenerateResource.Cache
 C:\Users\Sinshu\Desktop\oitgame1\Yanesdk\obj\Debug\Yanesdk.dll
 C:\Users\Sinshu\Desktop\oitgame1\Yanesdk\obj\Debug\Yanesdk.pdb
+C:\Users\Sinshu\Desktop\oitgame1\Yanesdk\obj\Debug\Yanesdk.csprojResolveAssemblyReference.cache
